@@ -1,36 +1,61 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const fetch = require('node-fetch');
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const myExtension = {
+  sendInputToApi: function() {
+    // Prompt the user for input
+    vscode.window.showInputBox({ prompt: 'Enter message to send' }).then(input => {
+      if (!input) {
+        // If no input is provided, do nothing
+        return;
+      }
 
-/**
- * @param {vscode.ExtensionContext} context
- */
+      // Create the data object
+      const data = {
+        text: input,
+        key: '7271e3bd-ced0-4343-915f-ca1711ce4107',
+        playerId: 'test',
+        speak: true // DEFAULT FALSE | FOR VOICE OUTPUT
+      };
+
+      // Send the data to the API endpoint
+      fetch('https://api.carterlabs.ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Display the response in the console
+          console.log('Input:', data.input);
+          console.log('Output Text:', data.output.text);
+
+          data.forced_behaviours.forEach(fb => {
+            console.log('Forced Behaviour:', fb.name);
+          });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    });
+  }
+};
+
 function activate(context) {
+  // Register the command
+  let disposable = vscode.commands.registerCommand('extension.sendInputToApi', function () {
+    myExtension.sendInputToApi();
+  });
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "carter-vs-code-extension" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('carter-vs-code-extension.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Carter VS Code Extension!');
-	});
-
-	context.subscriptions.push(disposable);
+  // Add the command to the subscriptions
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
-}
+  activate,
+  deactivate
+};

@@ -12,10 +12,21 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "carter-vs-code-extension.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "carter-vs-code-extension.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "extension.sendInputToApi",
+        "title": "Send Input to API"
+      }
+      ,
+      {
+        "command": "carter-vs-code-extension.showPanel",
+        "title": "Show Panel"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
