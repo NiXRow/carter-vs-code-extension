@@ -14,17 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "carter-vs-code-extension.helloWorld",
-        "title": "Hello World"
-      },
-      {
         "command": "extension.sendInputToApi",
-        "title": "Send Input to API"
-      }
-      ,
-      {
-        "command": "carter-vs-code-extension.showPanel",
-        "title": "Show Panel"
+        "title": "Send Input to API (test)"
       }
     ]
   },
@@ -34,14 +25,17 @@
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.78.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@vscode/test-electron": "^2.3.0",
     "eslint": "^8.39.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "typescript": "^5.0.4",
-    "@vscode/test-electron": "^2.3.0"
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.2.2"
   }
 }

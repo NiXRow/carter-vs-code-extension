@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'unsafe-eval' vscode-resource: https:; style-src vscode-resource: https: 'unsafe-inline';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Extension</title>
+</head>
+<body>
+    <form>
+        <label for="message">Message:</label><br>
+        <input type="text" id="message" name="message"><br>
+        <input type="button" value="Send" onclick="sendMessage()">
+    </form>
+</body>
+<script>
+    function sendMessage() {
+        const message = document.getElementById("message").value;
+        const data = {
+            text: message,
+            key: '7271e3bd-ced0-4343-915f-ca1711ce4107',
+            playerId: 'test',
+            speak: false
+        };
+        fetch('https://api.carterlabs.ai/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Input:', data.input);
+            console.log('Output Text:', data.output.text);
+            data.forced_behaviours.forEach(fb => {
+                console.log('Forced Behaviour:', fb.name);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+</script>
+</html>

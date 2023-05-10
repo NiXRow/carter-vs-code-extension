@@ -1,55 +1,74 @@
 const vscode = require('vscode');
 const fetch = require('node-fetch');
 
-const myExtension = {
-  sendInputToApi: function() {
-    // Prompt the user for input
-    vscode.window.showInputBox({ prompt: 'Enter message to send' }).then(input => {
-      if (!input) {
-        // If no input is provided, do nothing
-        return;
-      }
-
-      // Create the data object
-      const data = {
-        text: input,
-        key: '7271e3bd-ced0-4343-915f-ca1711ce4107',
-        playerId: 'test',
-        speak: true // DEFAULT FALSE | FOR VOICE OUTPUT
-      };
-
-      // Send the data to the API endpoint
-      fetch('https://api.carterlabs.ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Display the response in the console
-          console.log('Input:', data.input);
-          console.log('Output Text:', data.output.text);
-
-          data.forced_behaviours.forEach(fb => {
-            console.log('Forced Behaviour:', fb.name);
-          });
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    });
-  }
-};
-
 function activate(context) {
-  // Register the command
   let disposable = vscode.commands.registerCommand('extension.sendInputToApi', function () {
-    myExtension.sendInputToApi();
-  });
+    const panel = vscode.window.createWebviewPanel(
+      'sendInputToApi',
+      'Send Input to API',
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true
+      }
+    );
 
-  // Add the command to the subscriptions
+    // Set the HTML content of the panel
+    panel.webview.html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Send Input to API</title>
+    </head>
+    <body>
+      <input type="text" id="input" placeholder="Enter message to send">
+      <button id="send">Send</button>
+      <div id="output"></div>
+      <script>
+        const button = document.getElementById('send');
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+
+        button.addEventListener('click', () => {
+          const data = {
+            text: input.value,
+            key: '7271e3bd-ced0-4343-915f-ca1711ce4107',
+            playerId: 'test',
+            speak: true // DEFAULT FALSE | FOR VOICE OUTPUT
+          };
+
+          fetch('https://api.carterlabs.ai/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })
+            .then(response => response.json())
+            .then(data => {
+              output.innerHTML += \`
+                <p>Input: \${data.input}</p>
+                <p>Output Text: \${data.output.text}</p>
+              \`;
+              data.forced_behaviours.forEach(fb => {
+                output.innerHTML += \`<p>Forced Behaviour: \${fb.name}</p>\`;
+              });
+            })
+            .catch(error => {
+              output.innerHTML += \`<p>Error: \${error.message}</p> <>\`;
+            });
+        });
+      </script>
+    </body>
+    </html>
+  `;
+
+
+    // Add the panel to the subscriptions
+    context.subscriptions.push(panel);
+  });
   context.subscriptions.push(disposable);
 }
 
